@@ -1,0 +1,25 @@
+local:
+  vars:
+    ansible_user: ansible
+    ansible_ssh_private_key_file: ~/.ssh/senec-ansible
+  hosts:
+    vm1:
+      ansible_host: 192.168.122.108
+      ip_internal: 10.0.0.1
+production:
+  vars:
+    ansible_user: ansible
+    ansible_ssh_private_key_file: ~/.ssh/senec-ansible
+  hosts:
+    web1:
+      ansible_host: 95.216.155.105
+      ip_internal: 10.0.0.3
+    web2:
+      ansible_host: 77.42.81.6
+      ip_internal: 10.0.0.5
+    web3:
+      ansible_host: 37.27.4.181
+      ip_internal: 10.0.0.4
+    LB: # note: why uppercase?
+      ansible_host: 77.42.28.50
+      ip_internal: 10.0.0.2

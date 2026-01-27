@@ -15,3 +15,28 @@ by default. **Enable or replace this volume mount with care.**
 docker compose build
 docker compose up -d
 ```
+
+## Executing Ansible
+
+All following commands in this section require to be run inside the Ansible container. In order to exec into the
+container, execute the following command:
+
+```bash
+# host
+docker compose exec -it ansible bash
+```
+
+### List Inventory
+
+```bash
+# container
+ansible-inventory --list
+```
+
+### Execute Ansible
+
+```bash
+# container
+ansible-playbook playbook.yml -l production
+ansible-playbook playbook.yml -l local               # todo remove
+```

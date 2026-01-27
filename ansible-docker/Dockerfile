@@ -7,7 +7,12 @@ LABEL org.opencontainers.image.title="Ansible" \
 
 ENV ANSIBLE_VERSION=13.2.0
 
-RUN apk add --no-cache bash git  && \
+RUN apk add --no-cache \
+        bash \
+        git \
+        openssh-client \
+        openssl \
+    && \
     pip3 install --upgrade --no-cache-dir \
         ansible==$ANSIBLE_VERSION \
         docker && \
