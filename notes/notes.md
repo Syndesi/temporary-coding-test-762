@@ -32,3 +32,26 @@ Task failed: Timeout (12s) waiting for privilege escalation prompt:
 However `NOPASSWD` seems like a **very bad idea for real production environments**. Needs to be investigated with more
 time, or a real production auth tool should be used in the first place.
 
+## Order of IP Addresses
+
+Within the file `tasks/database.yml` I generate the list of IP addresses within the current group, which satisfy the
+`deploy_database == true` filter:
+
+```txt
+groups[
+  group_names | reject('equalto', 'all') | list | first
+]
+| map('extract', hostvars)
+| selectattr('deploy_database', 'equalto', true)
+| map(attribute='ip_internal')
+| list
+| sort
+```
+
+It has the following advantages:
+
+- It works.
+- The resulting list is sorted, i.e. is always identical.
+
+However, the IP addresses are sorted as a string, such that `10.0.0.19` comes before `10.0.0.2`. While this is mostly a
+cosmetic issue, this should be optimized at a later date.

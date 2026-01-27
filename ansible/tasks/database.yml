@@ -1,2 +1,27 @@
-- name: Ping my hosts
-  ansible.builtin.ping:
+- name: Collect database hosts for each group
+  set_fact:
+    db_nodes: >-
+      {{
+        groups[
+          group_names | reject('equalto', 'all') | list | first
+        ]
+        | map('extract', hostvars)
+        | selectattr('deploy_database', 'equalto', true)
+        | map(attribute='ip_internal')
+        | list
+        | sort
+      }}
+  loop: "{{ groups.keys() }}"
+  when: groups[item] is defined
+  register: db_nodes_per_group
+
+- name: Print db_nodes fact
+  debug:
+    var: db_nodes
+
+- name: Debug rendered MaxScale configuration (line by line)
+  debug:
+    msg: "{{ lookup('template', './database/maxscale.cnf.j2').split('\n') }}"
+  vars:
+    db_nodes: "{{ db_nodes }}"
+

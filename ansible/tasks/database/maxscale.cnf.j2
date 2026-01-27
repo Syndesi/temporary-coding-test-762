@@ -1,0 +1,28 @@
+[MaxScale]
+threads=4
+logdir=/var/log/maxscale
+pidfile=/var/run/maxscale.pid
+user=maxscale
+
+{% set local_ip = hostvars[inventory_hostname]['ip_internal'] %}
+{% set ordered_nodes = [local_ip] + db_nodes | reject('equalto', local_ip) | list %}
+{% for ip in ordered_nodes %}
+[{{ groups['all'] | map('extract', hostvars) | selectattr('ip_internal','equalto', ip) | map(attribute='inventory_hostname') | first }}]
+type=server
+address={{ ip }}
+port=3306
+protocol=MySQLBackend
+
+{% endfor %}
+[Read-Write Service]
+type=service
+router=readwritesplit
+servers={% for ip in ordered_nodes %}{{ groups['all'] | map('extract', hostvars) | selectattr('ip_internal','equalto', ip) | map(attribute='inventory_hostname') | first }}{% if not loop.last %}, {% endif %}{% endfor %}
+user=maxscale_user
+password=supersecret
+
+[Read-Write Listener]
+type=listener
+service=Read-Write Service
+protocol=MySQLClient
+port=3306
