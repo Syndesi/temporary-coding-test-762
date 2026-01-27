@@ -1,0 +1,14 @@
+name: senec-coding-example
+
+services:
+
+  ansible:
+    container_name: ansible
+    build:
+      context: ./ansible-docker
+    tty: true
+    network_mode: host                      # note: only required when testing against local VMs
+    volumes:
+      - "./ansible:/ansible"
+      #- "$HOME/.ssh:/ssh-volume:ro"        # mount of local user's ssh keys should not be enabled by default
+      - "../local-ssh-key:/ssh-volume:ro"   # outside the repository
