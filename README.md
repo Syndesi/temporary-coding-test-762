@@ -26,6 +26,14 @@ container, execute the following command:
 docker compose exec -it ansible bash
 ```
 
+### Install Ansible dependencies
+
+```bash
+# container
+ansible-galaxy collection install -r requirements.yml -p ./galaxy/collections
+ansible-galaxy role install -r requirements.yml -p ./galaxy/roles
+```
+
 ### List Inventory
 
 ```bash
@@ -39,4 +47,18 @@ ansible-inventory --list
 # container
 ansible-playbook playbook.yml -l production
 ansible-playbook playbook.yml -l local               # todo remove
+```
+
+## Adding New Nodes
+
+Execute the following commands on the new host:
+
+```bash
+# root user, host
+apt update
+apt upgrade
+# note: the following command can likely be improved, made more secure etc
+install -m 0440 /dev/stdin /etc/sudoers.d/ansible <<'EOF'
+ansible ALL=(ALL) NOPASSWD: ALL
+EOF
 ```

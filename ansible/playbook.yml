@@ -7,3 +7,27 @@
    - name: Print message
      ansible.builtin.debug:
        msg: Hello world
+
+
+- hosts: all
+  tasks:
+    - name: Include Docker tasks.
+      include_tasks: "tasks/docker.yml"
+
+- hosts: all
+  tasks:
+    - name: Include database tasks.
+      include_tasks: "tasks/database.yml"
+      when: deploy_database == true
+
+- hosts: all
+  tasks:
+    - name: Include Wordpress tasks.
+      include_tasks: "tasks/wordpress.yml"
+      when: deploy_wordpress == true
+
+- hosts: all
+  tasks:
+    - name: Include load balancer tasks.
+      include_tasks: "tasks/loadbalancer.yml"
+      when: deploy_load_balancer == true

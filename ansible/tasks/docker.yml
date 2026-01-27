@@ -1,0 +1,15 @@
+- name: Install Docker.
+  include_role:
+    name: geerlingguy.docker
+    apply:
+      become: true
+  vars:
+    docker_edition: 'ce'
+    docker_install_compose: true
+
+- name: Add user ansible to docker group.
+  become: true
+  ansible.builtin.user:
+    name: ansible
+    groups: docker
+    append: yes

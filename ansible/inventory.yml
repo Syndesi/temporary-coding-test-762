@@ -1,11 +1,21 @@
+all:
+  vars:
+    deploy_database: false
+    deploy_wordpress: false
+    deploy_load_balancer: false
 local:
   vars:
     ansible_user: ansible
     ansible_ssh_private_key_file: ~/.ssh/senec-ansible
+    ansible_become_password: "1234"
+    ansible_become_method: "sudo"
   hosts:
     vm1:
       ansible_host: 192.168.122.108
       ip_internal: 10.0.0.1
+      deploy_database: false
+      deploy_wordpress: false
+      deploy_load_balancer: false
 production:
   vars:
     ansible_user: ansible
@@ -14,12 +24,19 @@ production:
     web1:
       ansible_host: 95.216.155.105
       ip_internal: 10.0.0.3
+      deploy_database: true
+      deploy_wordpress: true
     web2:
       ansible_host: 77.42.81.6
       ip_internal: 10.0.0.5
+      deploy_database: true
+      deploy_wordpress: true
     web3:
       ansible_host: 37.27.4.181
       ip_internal: 10.0.0.4
-    LB: # note: why uppercase?
+      deploy_database: true
+      deploy_wordpress: true
+    LB:
       ansible_host: 77.42.28.50
       ip_internal: 10.0.0.2
+      deploy_load_balancer: true
