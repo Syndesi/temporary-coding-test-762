@@ -9,8 +9,8 @@
       {%- set sorted_list = host_list | sort(attribute='internal_ip') -%}
       {%- set current_host = sorted_list | selectattr('hostname', 'equalto', inventory_hostname) | list -%}
       {%- set other_hosts = sorted_list | rejectattr('hostname', 'equalto', inventory_hostname) | list -%}
-      {{ [{'hostname': current_host[0]['hostname'], 'internal_ip': 'mariadb'}] + other_hosts }}
-#      {{ current_host + other_hosts }}
+      {{ current_host + other_hosts }}
+#      {{ [{'hostname': current_host[0]['hostname'], 'internal_ip': 'mariadb'}] + other_hosts }}
 
 
 - name: Debug database nodes.
@@ -70,6 +70,12 @@
   template:
     src: ./database/maxscale.cnf.j2
     dest: "/srv/database/maxscale.cnf"
+    mode: '0644'
+
+- name: Generate and upload MariaDB config from template.
+  template:
+    src: ./database/replication.cnf.j2
+    dest: "/srv/database/replication.cnf"
     mode: '0644'
 
 - name: Generate and upload MariaDB init queries from template.

@@ -13,6 +13,7 @@ services:
     volumes:
       - ./mariadb:/var/lib/mysql
       - ./init-maxscale.sql:/docker-entrypoint-initdb.d/init-maxscale.sql
+      - ./replication.cnf:/etc/mysql/mariadb.conf.d/replication.cnf
     ports:
       - "3306:3306"
 

@@ -17,12 +17,14 @@ local:
       deploy_database: true
       deploy_wordpress: true
       deploy_load_balancer: true
+      mariadb_server_id: 1
     vm2:
       ansible_host: 192.168.122.100
       ip_internal: 192.168.122.100
       deploy_database: true
       deploy_wordpress: true
       deploy_load_balancer: true
+      mariadb_server_id: 2
 production:
   vars:
     ansible_user: ansible
@@ -33,16 +35,19 @@ production:
       ip_internal: 10.0.0.3
       deploy_database: true
       deploy_wordpress: true
+      mariadb_server_id: 3
     web2:
       ansible_host: 77.42.81.6
       ip_internal: 10.0.0.5
       deploy_database: true
       deploy_wordpress: true
+      mariadb_server_id: 5
     web3:
       ansible_host: 37.27.4.181
       ip_internal: 10.0.0.4
       deploy_database: true
       deploy_wordpress: true
+      mariadb_server_id: 4
     LB:
       ansible_host: 77.42.28.50
       ip_internal: 10.0.0.2
