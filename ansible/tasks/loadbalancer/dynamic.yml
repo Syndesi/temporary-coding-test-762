@@ -1,0 +1,32 @@
+http:
+  routers:
+    app1:
+      rule: "Host(`app1.example.com`)"
+      entryPoints:
+        - websecure
+      service: app1-service
+      tls:
+        certResolver: letsencrypt
+
+    app2:
+      rule: "Host(`app2.example.com`)"
+      entryPoints:
+        - websecure
+      service: app2-service
+      tls:
+        certResolver: letsencrypt
+
+  services:
+    app1-service:
+      loadBalancer:
+        servers:
+          - url: "http://10.0.0.1:8080"
+          - url: "http://10.0.0.2:8080"
+          - url: "http://10.0.0.3:8080"
+
+    app2-service:
+      loadBalancer:
+        servers:
+          - url: "http://10.0.0.1:9090"
+          - url: "http://10.0.0.2:9090"
+          - url: "http://10.0.0.3:9090"

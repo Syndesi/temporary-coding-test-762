@@ -55,3 +55,12 @@ It has the following advantages:
 
 However, the IP addresses are sorted as a string, such that `10.0.0.19` comes before `10.0.0.2`. While this is mostly a
 cosmetic issue, this should be optimized at a later date.
+
+## DNS
+
+The provided DNS record is a great start for WordPress itself, however sub-records like <tool>.wordpress-sk.senecops.com
+would have been helpful. Specifically tools like Traefik and MaxScale provide their own web interfaces, which would make
+debugging and exploring this project more enjoyable.
+
+I plan on using personal DNS records in order to advertise these additional services - very likely with some sort of
+HTTP Basic Auth protection by Traefik itself as well.

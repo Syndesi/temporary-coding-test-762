@@ -1,5 +1,22 @@
 # SENEC coding example
 
+## Limitations
+
+- Replication itself does not yet work.  
+  Alternatives include:
+  - Starting nodes from a "scratch" backup, which is included in the git-repository, however embedded credentials need
+    to be handled separately / other aspects become more convoluted.
+  - Coordinating replication across nodes with SQL queries - requires orchestration outside of Ansible.
+- Load balancer is not yet implemented.  
+  While comparatively easy to implement, it is not as important as replication, therefore it was one of the last tasks
+  started.
+- File synchronization of WordPress volume is yet to be decided. While some S3-compatible WordPress plugins exists, they
+  would shift the issue to another "magical" S3 node outside of this sketch.
+- Implementation of secure passwords - as this notebook is still under local development (virtual machines), flexibility
+  is currently more important than absolute security. Templates to replace insecure passwords already exist, and some
+  comments containing "todo" are also present.
+- Notebook has not yet been executed against the production infrastructure - as it is still being under development.
+
 ## Getting started
 
 Requirements:

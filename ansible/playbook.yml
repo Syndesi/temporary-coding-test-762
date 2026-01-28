@@ -14,9 +14,9 @@
     - name: Include WordPress tasks.
       include_tasks: "tasks/wordpress.yml"
       when: deploy_wordpress == true
-#
-#- hosts: all
-#  tasks:
-#    - name: Include load balancer tasks.
-#      include_tasks: "tasks/loadbalancer.yml"
-#      when: deploy_load_balancer == true
+
+- hosts: all
+  tasks:
+    - name: Include load balancer tasks.
+      include_tasks: "tasks/loadbalancer.yml"
+      when: deploy_load_balancer == true

@@ -26,8 +26,6 @@
     path: "{{ item }}"
     state: directory
     mode: '0755'
-#    owner: "997"
-#    group: "995"
   loop:
     - "/srv/wordpress/wordpress"
 
