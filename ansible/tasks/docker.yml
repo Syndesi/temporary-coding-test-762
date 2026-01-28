@@ -13,3 +13,6 @@
     name: ansible
     groups: docker
     append: yes
+
+- name: Refresh SSH connection so group membership takes effect.
+  meta: reset_connection

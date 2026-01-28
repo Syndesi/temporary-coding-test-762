@@ -1,14 +1,3 @@
-- name: Test
-  hosts: all
-  tasks:
-   - name: Ping my hosts
-     ansible.builtin.ping:
-
-   - name: Print message
-     ansible.builtin.debug:
-       msg: Hello world
-
-
 #- hosts: all
 #  tasks:
 #    - name: Include Docker tasks.

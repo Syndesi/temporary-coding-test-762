@@ -1,27 +1,93 @@
-- name: Collect database hosts for each group
+- name: Generate list of all database nodes in current inventory group, sorted, with current node at start.
   set_fact:
-    db_nodes: >-
-      {{
-        groups[
-          group_names | reject('equalto', 'all') | list | first
-        ]
-        | map('extract', hostvars)
-        | selectattr('deploy_database', 'equalto', true)
-        | map(attribute='ip_internal')
-        | list
-        | sort
-      }}
-  loop: "{{ groups.keys() }}"
-  when: groups[item] is defined
-  register: db_nodes_per_group
+    database_nodes: >-
+      {%- set group = (group_names | difference(['all']) | first) -%}
+      {%- set host_list = [] -%}
+      {%- for hostname in groups[group] -%}
+      {%-   set _ = host_list.append({'hostname': hostname, 'internal_ip': hostvars[hostname]['ip_internal']}) -%}
+      {%- endfor -%}
+      {%- set sorted_list = host_list | sort(attribute='internal_ip') -%}
+      {%- set current_host = sorted_list | selectattr('hostname', 'equalto', inventory_hostname) | list -%}
+      {%- set other_hosts = sorted_list | rejectattr('hostname', 'equalto', inventory_hostname) | list -%}
+      {{ [{'hostname': current_host[0]['hostname'], 'internal_ip': 'mariadb'}] + other_hosts }}
+#      {{ current_host + other_hosts }}
 
-- name: Print db_nodes fact
-  debug:
-    var: db_nodes
 
-- name: Debug rendered MaxScale configuration (line by line)
+- name: Debug database nodes.
   debug:
-    msg: "{{ lookup('template', './database/maxscale.cnf.j2').split('\n') }}"
-  vars:
-    db_nodes: "{{ db_nodes }}"
+    var: database_nodes
+  when: debug == true
+
+- name: Ensure service directory exists.
+  become: true
+  file:
+    path: "/srv/database"
+    state: directory
+    mode: '0755'
+    owner: "ansible"
+    group: "ansible"
+
+- name: Check if docker-compose.yml exists.
+  stat:
+    path: "/srv/database/docker-compose.yml"
+  register: compose_file
+
+- name: Ensure containers are stopped before updating config.
+  community.docker.docker_compose_v2:
+    project_src: "/srv/database"
+    state: absent
+  changed_when: false
+  check_mode: no
+  when: compose_file.stat.exists
+
+- name: Ensure MariaDB directories exist.
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - "/srv/database/mariadb"
+
+- name: Ensure MaxScale directories exist.
+  become: true
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+    owner: "997" # maxscale (user)
+    group: "995" # maxscale (group
+  loop:
+    - "/srv/database/maxscale-data"
+    - "/srv/database/maxscale-logs"
+
+- name: Upload Docker Compose file.
+  copy:
+    src: ./database/docker-compose.yml
+    dest: "/srv/database/docker-compose.yml"
+    mode: '0644'
+
+- name: Generate and upload MaxScale config from template.
+  template:
+    src: ./database/maxscale.cnf.j2
+    dest: "/srv/database/maxscale.cnf"
+    mode: '0644'
+
+- name: Generate and upload MariaDB init queries from template.
+  template:
+    src: ./database/init-maxscale.sql.j2
+    dest: "/srv/database/init-maxscale.sql"
+    mode: '0644'
+
+- name: Pull all images defined in docker-compose.
+  community.docker.docker_compose_v2:
+    project_src: "/srv/database"
+    pull: missing
+    state: absent
+
+- name: Start docker-compose stack.
+  community.docker.docker_compose_v2:
+    project_src: "/srv/database"
+    state: present
+  changed_when: false
+  check_mode: no
 

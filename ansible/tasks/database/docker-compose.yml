@@ -1,0 +1,32 @@
+name: database
+
+services:
+  mariadb:
+    container_name: mariadb
+    image: mariadb:12.1.2
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: supersecret
+      MARIADB_DATABASE: wordpress
+      MARIADB_USER: wordpress
+      MARIADB_PASSWORD: wordpress-password
+    volumes:
+      - ./mariadb:/var/lib/mysql
+      - ./init-maxscale.sql:/docker-entrypoint-initdb.d/init-maxscale.sql
+    ports:
+      - "3306:3306"
+
+  maxscale:
+    container_name: maxscale
+    image: mariadb/maxscale:24.02.8
+    restart: unless-stopped
+    ports:
+      - "8989:8989"
+      - "3307:3307"
+    volumes:
+      - ./maxscale.cnf:/etc/maxscale.cnf
+      - ./maxscale-data:/var/lib/maxscale
+      - ./maxscale-logs:/var/log/maxscale
+    environment:
+      MAXSCALE_LOGDIR: /var/log/maxscale
+      MAXSCALE_PIDFILE: /var/run/maxscale.pid

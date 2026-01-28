@@ -1,35 +1,34 @@
-[MaxScale]
-threads=4
-logdir=/var/log/maxscale
-pidfile=/var/run/maxscale.pid
-user=maxscale
+[maxscale]
+admin_host=0.0.0.0
+admin_port=8989
+admin_secure_gui=false
 
-{% set local_ip = hostvars[inventory_hostname]['ip_internal'] %}
-{% set ordered_nodes = [local_ip] + db_nodes | reject('equalto', local_ip) | list %}
-{% set server_names = [] %}
-{% for h in groups['all'] %}
-{%   if hostvars[h]['ip_internal'] in ordered_nodes %}
-{%     set _ = server_names.append(h) %}
-{%   endif %}
-{% endfor %}
-{% for ip, name in ordered_nodes | zip(server_names) %}
-[{{ name }}]
+{% for node in database_nodes %}
+[{{ node.hostname }}]
 type=server
-address={{ ip }}
+address={{ node.internal_ip }}
 port=3306
-protocol=MySQLBackend
 
 {% endfor %}
+[mariadb-monitor]
+type=monitor
+module=mariadbmon
+user=maxscale
+password=maxscale_password
+monitor_interval=2000ms
+backend_connect_timeout=3000ms
+backend_connect_attempts=5
+servers={{ database_nodes | map(attribute='hostname') | join(',') }}
 
-[Read-Write Service]
+[read-write-service]
 type=service
 router=readwritesplit
-servers={{ server_names | join(', ') }}
-user=maxscale_user
-password=supersecret
+servers={{ database_nodes | map(attribute='hostname') | join(', ') }}
+user=maxscale
+password=maxscale_password
 
-[Read-Write Listener]
+[read-write-listener]
 type=listener
-service=Read-Write Service
-protocol=MySQLClient
-port=3306
+service=read-write-service
+protocol=mariadbprotocol
+port=3307
