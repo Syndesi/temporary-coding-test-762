@@ -1,2 +1,52 @@
-- name: Ping my hosts
-  ansible.builtin.ping:
+- name: Ensure service directory exists.
+  become: true
+  file:
+    path: "/srv/wordpress"
+    state: directory
+    mode: '0755'
+    owner: "ansible"
+    group: "ansible"
+
+- name: Check if docker-compose.yml exists.
+  stat:
+    path: "/srv/wordpress/docker-compose.yml"
+  register: compose_file
+
+- name: Ensure containers are stopped before updating config.
+  community.docker.docker_compose_v2:
+    project_src: "/srv/wordpress"
+    state: absent
+  changed_when: false
+  check_mode: no
+  when: compose_file.stat.exists
+
+- name: Ensure WordPress directories exist.
+  become: true
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+#    owner: "997"
+#    group: "995"
+  loop:
+    - "/srv/wordpress/wordpress"
+
+- name: Upload Docker Compose file.
+  copy:
+    src: ./wordpress/docker-compose.yml
+    dest: "/srv/wordpress/docker-compose.yml"
+    mode: '0644'
+
+- name: Pull all images defined in docker-compose.
+  community.docker.docker_compose_v2:
+    project_src: "/srv/wordpress"
+    pull: missing
+    state: absent
+
+- name: Start docker-compose stack.
+  community.docker.docker_compose_v2:
+    project_src: "/srv/wordpress"
+    state: present
+  changed_when: false
+  check_mode: no
+

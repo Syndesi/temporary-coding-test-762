@@ -17,12 +17,12 @@ local:
       deploy_database: true
       deploy_wordpress: true
       deploy_load_balancer: true
-#    vm2:
-#      ansible_host: 192.168.122.108
-#      ip_internal: 10.1.0.2
-#      deploy_database: true
-#      deploy_wordpress: true
-#      deploy_load_balancer: true
+    vm2:
+      ansible_host: 192.168.122.100
+      ip_internal: 192.168.122.100
+      deploy_database: true
+      deploy_wordpress: true
+      deploy_load_balancer: true
 production:
   vars:
     ansible_user: ansible

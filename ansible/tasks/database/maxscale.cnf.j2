@@ -18,6 +18,8 @@ password=maxscale_password
 monitor_interval=2000ms
 backend_connect_timeout=3000ms
 backend_connect_attempts=5
+cooperative_monitoring_locks=majority_of_running
+enforce_simple_topology=true
 servers={{ database_nodes | map(attribute='hostname') | join(',') }}
 
 [read-write-service]
