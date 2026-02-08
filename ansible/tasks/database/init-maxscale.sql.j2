@@ -16,6 +16,20 @@ GRANT
 ON *.* TO 'maxscale'@'%';
 GRANT
   SELECT ON mysql.* TO 'maxscale'@'%';
+
+{% if is_database_primary %}
+CREATE USER IF NOT EXISTS 'wordpress'@'%' IDENTIFIED BY 'wordpress_password';
+CREATE DATABASE IF NOT EXISTS wordpress;
+GRANT ALL PRIVILEGES ON wordpress.* TO 'wordpress'@'%';
+{% endif %}
+
 FLUSH PRIVILEGES;
 
-SET GLOBAL gtid_slave_pos = '0-1-0';
+#SET GLOBAL gtid_slave_pos = '0-1-0';
+
+
+
+#STOP SLAVE;
+#CHANGE MASTER TO master_host="maxscale", master_port=3306,
+#master_user="maxscale", master_password="password", master_use_gtid=slave_pos;
+#START SLAVE;

@@ -1,6 +1,7 @@
 all:
   vars:
     deploy_database: false
+    is_database_primary: false
     deploy_wordpress: false
     deploy_load_balancer: false
     debug: true
@@ -18,6 +19,7 @@ local:
       deploy_wordpress: true
       deploy_load_balancer: true
       mariadb_server_id: 1
+      is_database_primary: true
     vm2:
       ansible_host: 192.168.122.100
       ip_internal: 192.168.122.100

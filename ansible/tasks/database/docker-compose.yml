@@ -7,9 +7,9 @@ services:
     restart: unless-stopped
     environment:
       MARIADB_ROOT_PASSWORD: supersecret
-      MARIADB_DATABASE: wordpress
-      MARIADB_USER: wordpress
-      MARIADB_PASSWORD: wordpress_password
+      #MARIADB_DATABASE: wordpress
+      #MARIADB_USER: wordpress
+      #MARIADB_PASSWORD: wordpress_password
     volumes:
       - ./mariadb:/var/lib/mysql
       - ./init-maxscale.sql:/docker-entrypoint-initdb.d/init-maxscale.sql

@@ -3,5 +3,6 @@ server_id={{ mariadb_server_id }}
 log_bin=binlog
 binlog_format=ROW
 log_slave_updates=ON
-gtid_strict_mode=ON
+#gtid_strict_mode=ON
 skip_name_resolve=ON
+log-basename=db-{{ mariadb_server_id }}
