@@ -96,3 +96,30 @@
     state: present
   changed_when: false
   check_mode: no
+
+- name: Initialize replication on secondary nodes.
+  when: is_database_primary == false
+  block:
+
+    - name: Check for file initialize-replication.sql - if it is missing, node requires replication initialization commands to be executed.
+      stat:
+        path: "/srv/database/initialize-replication.sql"
+      register: initialize_replication_file
+
+    - name: Generate and upload initialize-replication.sql.
+      template:
+        src: "./database/initialize-replication.sql.j2"
+        dest: "/srv/database/initialize-replication.sql"
+
+    - name: Wait for primary node to come online.
+      # note: this should be replaced by something more dynamic in production deployments, e.g. "ping sql connect to primary, wait 1s, retry"
+      ansible.builtin.wait_for:
+        timeout: 10
+      delegate_to: localhost
+      when: initialize_replication_file.stat.exists == false
+
+    - name: Execute initialize-replication.sql in secondary nodes **once**.
+      shell: "docker exec -i mariadb mariadb -uroot -psupersecret < /srv/database/initialize-replication.sql"
+#      shell: "docker exec -i mariadb mariadb -uroot -p{{ root_password }} < /srv/database/initialize-replication.sql"
+      when: initialize_replication_file.stat.exists == false
+
