@@ -16,4 +16,4 @@ services:
     volumes:
       - ./wordpress:/var/www/html
     ports:
-      - "80:80"
+      - "{{ ip_internal }}:80:80"

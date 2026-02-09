@@ -27,10 +27,13 @@ local:
     wordpress_password: 'test'
     wordpress_email: 'test@localhost.dev'
     wordpress_domain: 'http://192.168.122.108'
+
+    traefik_email: 'soerenklein98@gmail.com'
   hosts:
     vm1:
       ansible_host: 192.168.122.108
       ip_internal: 192.168.122.108
+      ip_external: 192.168.122.66
 
       deploy_database: true
       deploy_wordpress: true
@@ -41,9 +44,10 @@ local:
     vm2:
       ansible_host: 192.168.122.100
       ip_internal: 192.168.122.100
+
       deploy_database: true
       deploy_wordpress: true
-      deploy_load_balancer: true
+
       mariadb_server_id: 2
 production:
   vars:

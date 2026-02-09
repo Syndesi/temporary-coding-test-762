@@ -1,0 +1,25 @@
+name: loadbalancer
+
+services:
+  traefik:
+    container_name: traefik
+    image: traefik:v3.6.7
+    restart: unless-stopped
+    command:
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --api
+      - --providers.file.directory=/dynamic
+      - --accesslog=true
+      - --accesslog.format=json
+{#      - --certificatesresolvers.le.acme.caserver=https://acme-v02.api.letsencrypt.org/directory#}
+{#      - --certificatesresolvers.le.acme.email={{ traefik_email }}#}
+{#      - --certificatesresolvers.le.acme.storage=/acme.json#}
+{#      - --certificatesresolvers.le.acme.tlschallenge=true#}
+    volumes:
+      - ./acme.json:/etc/traefik/acme.json
+      - ./dynamic.yml:/etc/traefik/dynamic.yml
+      - ./traefik.yml:/etc/traefik/traefik.yml
+    ports:
+      - '{{ ip_external }}:80:80'
+      - '{{ ip_external }}:443:443'

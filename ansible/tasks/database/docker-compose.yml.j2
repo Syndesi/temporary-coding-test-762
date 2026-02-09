@@ -14,15 +14,15 @@ services:
       - ./initialize-database.sql:/docker-entrypoint-initdb.d/initialize-database.sql
       - ./mariadb.cnf:/etc/mysql/mariadb.conf.d/99-mariadb-ansible.cnf
     ports:
-      - "3306:3306"
+      - "{{ ip_internal }}:3306:3306"
 
   maxscale:
     container_name: maxscale
     image: mariadb/maxscale:24.02.8
     restart: unless-stopped
     ports:
-      - "8989:8989"
-      - "3307:3307"
+      - "{{ ip_internal }}:8989:8989"
+      - "{{ ip_internal }}:3307:3307"
     volumes:
       - ./maxscale.cnf:/etc/maxscale.cnf
       - ./maxscale-data:/var/lib/maxscale

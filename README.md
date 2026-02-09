@@ -1,15 +1,21 @@
-# SENEC coding example
+# SENEC Coding Example
 
 ## Limitations
 
-- Load balancer is not yet implemented.  
-  While comparatively easy to implement, it is not as important as replication, therefore it was one of the last tasks
-  started.
 - File synchronization of WordPress volume is yet to be decided. While some S3-compatible WordPress plugins exists, they
-  would shift the issue to another "magical" S3 node outside of this sketch.
-- Notebook has not yet been executed against the production infrastructure - as it is still being under development.
+  would shift the issue to another "magical" S3 node outside of this sketch.  
+  [SeaweedFS](https://github.com/seaweedfs/seaweedfs) might be another useful solution.
 
-## Getting started
+## Structural Overview
+
+Active services:
+
+- MariaDB: Open on `ip_internal:3306`.
+- MaxScale: Open on `ip_internal:3307` (SQL) and `ip_internal:8989` (web interface).
+- WordPress: Open on `ip_internal:80`.
+- Traefik (work in progress): Open on `ip_external:80` and `ip_external:443`.
+
+## Getting Started
 
 Requirements:
 

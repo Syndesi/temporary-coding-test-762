@@ -1,4 +1,61 @@
-- name: Ping my hosts
-  ansible.builtin.ping:
+- name: Ensure service directory exists.
+  become: true
+  file:
+    path: "/srv/loadbalancer"
+    state: directory
+    mode: '0755'
+    owner: "ansible"
+    group: "ansible"
 
-# todo
+- name: Check if docker-compose.yml exists.
+  stat:
+    path: "/srv/loadbalancer/docker-compose.yml"
+  register: compose_file
+
+- name: Ensure containers are stopped before updating config.
+  community.docker.docker_compose_v2:
+    project_src: "/srv/loadbalancer"
+    state: absent
+  changed_when: false
+  check_mode: no
+  when: compose_file.stat.exists
+
+- name: Upload Traefik Docker Compose file from template.
+  template:
+    src: ./loadbalancer/docker-compose.yml.j2
+    dest: "/srv/loadbalancer/docker-compose.yml"
+    mode: '0644'
+
+- name: Upload Traefik main config.
+  copy:
+    src: ./loadbalancer/traefik.yml
+    dest: "/srv/loadbalancer/traefik.yml"
+    mode: '0644'
+
+- name: Upload Traefik dynamic config from template.
+  template:
+    src: ./loadbalancer/dynamic.yml.j2
+    dest: "/srv/loadbalancer/dynamic.yml"
+    mode: '0644'
+
+- name: Upload Traefik acme file from template.
+  copy:
+    src: ./loadbalancer/acme.json
+    dest: "/srv/loadbalancer/acme.json"
+    mode: '0600'
+    force: false
+
+- name: Pull Traefik Docker images if absent.
+  community.docker.docker_compose_v2:
+    project_src: "/srv/loadbalancer"
+    pull: missing
+    state: absent
+
+- name: Start Traefik Docker Compose stack.
+  community.docker.docker_compose_v2:
+    project_src: "/srv/loadbalancer"
+    state: present
+  changed_when: false
+  check_mode: no
+
+

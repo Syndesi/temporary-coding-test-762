@@ -35,13 +35,13 @@
     dest: "/srv/wordpress/docker-compose.yml"
     mode: '0644'
 
-- name: Pull all images defined in docker-compose.
+- name: Pull WordPress Docker images if absent.
   community.docker.docker_compose_v2:
     project_src: "/srv/wordpress"
     pull: missing
     state: absent
 
-- name: Start docker-compose stack.
+- name: Start WordPress Docker Composer stack.
   community.docker.docker_compose_v2:
     project_src: "/srv/wordpress"
     state: present
