@@ -1,17 +1,23 @@
 http:
   routers:
     wordpress:
-{#      rule: "Host(`wordpress.example.com`) || HostSNI(`192.168.122.66`)"#}
-      rule: "HostRegexp(`{host:.+}`)"
+      rule: "Host(`{{ wordpress_domain }}`)"
       entryPoints:
         - websecure
       service: wordpress-service
-#      tls:
-#        certResolver: letsencrypt
+      tls:
+        certResolver: letsencrypt
 
   services:
     wordpress-service:
       loadBalancer:
         servers:
-          - url: "http://192.168.122.108:80"
-          - url: "http://192.168.122.100:80"
+{% for node in wordpress_nodes %}
+          - url: "http://{{ node.ip_internal }}:80" # {{ node.hostname }}
+{% endfor %}
+        healthCheck:
+          path: "/"
+          interval: "10s"
+          timeout: "3s"
+        sticky:
+          cookie: {}

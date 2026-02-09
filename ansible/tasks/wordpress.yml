@@ -80,7 +80,7 @@
           --env-file /tmp/wp_envs \
           wordpress:cli \
           wp core install \
-            --url='{{ wordpress_domain }}' \
+            --url='https://{{ wordpress_domain }}' \
             --title='WordPress Example' \
             --admin_user='{{ wordpress_username }}' \
             --admin_password='{{ wordpress_password }}' \

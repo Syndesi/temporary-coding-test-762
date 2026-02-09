@@ -64,3 +64,8 @@ debugging and exploring this project more enjoyable.
 
 I plan on using personal DNS records in order to advertise these additional services - very likely with some sort of
 HTTP Basic Auth protection by Traefik itself as well.
+
+## Code Style
+
+The content of the YAML files should be formatted identically, i.e. use single quotes everywhere, no inline text without
+quotes, spacing, newlines at the end of files etc.

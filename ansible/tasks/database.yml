@@ -11,7 +11,6 @@
       {%- set other_hosts = sorted_list | rejectattr('hostname', 'equalto', inventory_hostname) | list -%}
       {{ current_host + other_hosts }}
 
-
 - name: Debug database nodes.
   debug:
     var: database_nodes

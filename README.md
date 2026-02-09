@@ -5,6 +5,7 @@
 - File synchronization of WordPress volume is yet to be decided. While some S3-compatible WordPress plugins exists, they
   would shift the issue to another "magical" S3 node outside of this sketch.  
   [SeaweedFS](https://github.com/seaweedfs/seaweedfs) might be another useful solution.
+- More subdomains for debugging purposes, e.g. to interact with Traefik's dashboard etc., would be an useful addition.
 
 ## Structural Overview
 
@@ -142,3 +143,35 @@ The WordPress login page can be found at `https://domain/wp-login.php`.
 ### Dashboard
 
 ![](./notes/assets/wordpress_dashboard.png)
+
+## Outage Test
+
+Stop any database Docker Compose project, e.g. the current primary:
+
+```bash
+# node containing the primary instance
+cd /srv/database
+docker compose down
+```
+
+This leads to automatic failover in MaxScale:
+
+![](./notes/assets/maxscale_during_outage.png)
+
+Which keeps WordPress active.
+
+Note: The page was edited during the database outage:
+
+![](./notes/assets/wordpress_during_outage.png)
+
+And after re-starting the database node:
+
+```bash
+# node containing the stopped instance
+cd /srv/database
+docker compose up -d
+```
+
+MaxScale manages all required steps to bring the stopped node up to date and rejoin the cluster:
+
+![](./notes/assets/maxscale_after_outage_self_healing.png)

@@ -1,3 +1,18 @@
+- name: Generate list of all WordPress nodes in current inventory group, sorted.
+  set_fact:
+    wordpress_nodes: >-
+      {%- set group = (group_names | difference(['all']) | first) -%}
+      {%- set host_list = [] -%}
+      {%- for hostname in groups[group] if hostvars[hostname].get('deploy_wordpress', false) | bool -%}
+      {%-   set _ = host_list.append({'hostname': hostname, 'ip_internal': hostvars[hostname]['ip_internal']}) -%}
+      {%- endfor -%}
+      {{ host_list | sort(attribute='ip_internal') }}
+
+- name: Debug WordPress nodes.
+  debug:
+    var: wordpress_nodes
+  when: debug == true
+
 - name: Ensure service directory exists.
   become: true
   file:
@@ -26,9 +41,9 @@
     dest: "/srv/loadbalancer/docker-compose.yml"
     mode: '0644'
 
-- name: Upload Traefik main config.
-  copy:
-    src: ./loadbalancer/traefik.yml
+- name: Upload Traefik main config from template.
+  template:
+    src: ./loadbalancer/traefik.yml.j2
     dest: "/srv/loadbalancer/traefik.yml"
     mode: '0644'
 
