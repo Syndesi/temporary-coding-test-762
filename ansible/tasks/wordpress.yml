@@ -30,8 +30,8 @@
     - "/srv/wordpress/wordpress"
 
 - name: Upload Docker Compose file.
-  copy:
-    src: ./wordpress/docker-compose.yml
+  template:
+    src: ./wordpress/docker-compose.yml.j2
     dest: "/srv/wordpress/docker-compose.yml"
     mode: '0644'
 
@@ -48,3 +48,43 @@
   changed_when: false
   check_mode: no
 
+- name: Initialize WordPress.
+  when: mariadb_is_primary == true
+  block:
+
+    - name: Check for file initialize-wordpress.txt - if it is missing, WordPress requires initialization commands to be executed.
+      stat:
+        path: "/srv/wordpress/initialize-wordpress.txt"
+      register: initialize_wordpress_file
+
+    - name: Generate and upload initialize-wordpress.txt.
+      copy:
+        src: "./wordpress/initialize-wordpress.txt"
+        dest: "/srv/wordpress/initialize-wordpress.txt"
+
+    - name: Wait for WordPress to come online (10s).
+      # note: this should be replaced by something more dynamic in production deployments
+      ansible.builtin.wait_for:
+        timeout: 10
+      delegate_to: localhost
+      when: initialize_wordpress_file.stat.exists == false
+
+    - name: Dump WordPress envs to a temp file
+      shell: docker inspect --format='{{ "{{range .Config.Env}}{{println .}}{{end}}" }}' wordpress | grep '^WORDPRESS' > /tmp/wp_envs
+      when: initialize_wordpress_file.stat.exists == false
+
+    - name: Execute initialize WordPress command **once**.
+      shell: |
+        docker run --rm \
+          --network container:wordpress \
+          --volumes-from wordpress \
+          --env-file /tmp/wp_envs \
+          wordpress:cli \
+          wp core install \
+            --url='{{ wordpress_domain }}' \
+            --title='WordPress Example' \
+            --admin_user='{{ wordpress_username }}' \
+            --admin_password='{{ wordpress_password }}' \
+            --admin_email='{{ wordpress_email }}' \
+            --skip-email
+      when: initialize_wordpress_file.stat.exists == false

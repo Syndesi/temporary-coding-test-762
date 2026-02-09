@@ -9,12 +9,12 @@
       include_tasks: "tasks/database.yml"
       when: deploy_database == true
 
-#- hosts: all
-#  tasks:
-#    - name: Include WordPress tasks.
-#      include_tasks: "tasks/wordpress.yml"
-#      when: deploy_wordpress == true
-#
+- hosts: all
+  tasks:
+    - name: Include WordPress tasks.
+      include_tasks: "tasks/wordpress.yml"
+      when: deploy_wordpress == true
+
 #- hosts: all
 #  tasks:
 #    - name: Include load balancer tasks.

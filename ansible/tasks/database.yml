@@ -112,7 +112,7 @@
         dest: "/srv/database/initialize-replication.sql"
 
     - name: Wait for primary node to come online (10s).
-      # note: this should be replaced by something more dynamic in production deployments, e.g. "ping sql connect to primary, wait 1s, retry"
+      # note: this should be replaced by something more dynamic in production deployments, e.g. "ping SQL connect to primary, wait 1s, retry"
       ansible.builtin.wait_for:
         timeout: 10
       delegate_to: localhost
@@ -120,6 +120,5 @@
 
     - name: Execute initialize-replication.sql in secondary nodes **once**.
       shell: "docker exec -i mariadb mariadb -uroot -p{{ mariadb_root_password }} < /srv/database/initialize-replication.sql"
-#      shell: "docker exec -i mariadb mariadb -uroot -p{{ root_password }} < /srv/database/initialize-replication.sql"
       when: initialize_replication_file.stat.exists == false
 

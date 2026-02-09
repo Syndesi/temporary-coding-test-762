@@ -1,0 +1,19 @@
+name: wordpress
+
+services:
+
+  wordpress:
+    container_name: wordpress
+    image: wordpress:6.9.0-php8.3-apache
+    restart: unless-stopped
+    environment:
+      # WordPress instance talks to MaxScale on the same node. SQL load balancing, read-write-split etc. is done through
+      # MaxScale.
+      WORDPRESS_DB_HOST: {{ ip_internal }}:3307
+      WORDPRESS_DB_USER: {{ mariadb_wordpress_username }}
+      WORDPRESS_DB_PASSWORD: {{ mariadb_wordpress_password }}
+      WORDPRESS_DB_NAME: {{ mariadb_wordpress_database_name }}
+    volumes:
+      - ./wordpress:/var/www/html
+    ports:
+      - "80:80"

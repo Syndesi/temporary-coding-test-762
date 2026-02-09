@@ -20,7 +20,7 @@ Requirements:
 readonly volume to location `/ssh-volume`. The user's default SSH key folder at `$HOME/.ssh` is explicitly NOT enabled
 by default. **Enable or replace this volume mount with care.**
 
-**IMPORTANT**: todo: describe how production secrets must be replaced
+**IMPORTANT**: For production deployments, the file `./ansible/inventory.yml` must be adapted.
 
 ```bash
 docker compose build
@@ -57,7 +57,6 @@ ansible-inventory --list
 ```bash
 # container
 ansible-playbook playbook.yml -l production
-ansible-playbook playbook.yml -l local               # todo remove
 ```
 
 ## Adding New Nodes
@@ -107,3 +106,20 @@ password:    mariadb
 ### Visualization
 
 ![](./notes/assets/maxscale_visualization.png)
+
+## WordPress
+
+WordPress is deployed as a Docker container. The initial setup is handled by a sidecar-service, which uses the
+`wordpress:cli` Docker image.
+
+![](./notes/assets/wordpress_index.png)
+
+### Login
+
+The WordPress login page can be found at `https://domain/wp-login.php`.
+
+![](./notes/assets/wordpress_login.png)
+
+### Dashboard
+
+![](./notes/assets/wordpress_dashboard.png)
