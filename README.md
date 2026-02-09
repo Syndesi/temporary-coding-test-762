@@ -175,3 +175,33 @@ docker compose up -d
 MaxScale manages all required steps to bring the stopped node up to date and rejoin the cluster:
 
 ![](./notes/assets/maxscale_after_outage_self_healing.png)
+
+## Sanity Check
+
+To make sure that no port is left open, we execute a few debug commands on the production system:
+
+```bash
+# lb
+docker ps
+```
+
+```txt
+CONTAINER ID   IMAGE            COMMAND                  CREATED         STATUS         PORTS                                              NAMES
+21270c9193cf   traefik:v3.6.7   "/entrypoint.sh --en…"   7 minutes ago   Up 7 minutes   77.42.28.50:80->80/tcp, 77.42.28.50:443->443/tcp   traefik
+```
+
+```bash
+# web1
+docker ps
+```
+
+```txt
+CONTAINER ID   IMAGE                           COMMAND                  CREATED         STATUS         PORTS                                    NAMES
+45bd1517b9da   wordpress:6.9.0-php8.3-apache   "docker-entrypoint.s…"   8 minutes ago   Up 8 minutes   10.0.0.3:80->80/tcp                      wordpress
+4c87ec0f8097   mariadb:12.1.2                  "docker-entrypoint.s…"   9 minutes ago   Up 9 minutes   10.0.0.3:3306->3306/tcp                  mariadb
+0d56c5360c0c   mariadb/maxscale:24.02.8        "/usr/bin/tini -- do…"   9 minutes ago   Up 9 minutes   3306-3307/tcp, 10.0.0.3:8989->8989/tcp   maxscale
+```
+
+Summary: Internal services are published on internal networks - either host networks like `10.0.0.x`, or Docker Compose
+networks like `3306-3307/tcp` (Docker's database network). Only the public load balancer is actually available for the
+internet.
