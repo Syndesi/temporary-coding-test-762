@@ -3,14 +3,13 @@
     database_nodes: >-
       {%- set group = (group_names | difference(['all']) | first) -%}
       {%- set host_list = [] -%}
-      {%- for hostname in groups[group] -%}
+      {%- for hostname in groups[group] if hostvars[hostname].get('deploy_database', false) | bool -%}
       {%-   set _ = host_list.append({'hostname': hostname, 'internal_ip': hostvars[hostname]['ip_internal']}) -%}
       {%- endfor -%}
       {%- set sorted_list = host_list | sort(attribute='internal_ip') -%}
       {%- set current_host = sorted_list | selectattr('hostname', 'equalto', inventory_hostname) | list -%}
       {%- set other_hosts = sorted_list | rejectattr('hostname', 'equalto', inventory_hostname) | list -%}
       {{ current_host + other_hosts }}
-#      {{ [{'hostname': current_host[0]['hostname'], 'internal_ip': 'mariadb'}] + other_hosts }}
 
 
 - name: Debug database nodes.
@@ -84,6 +83,11 @@
     dest: "/srv/database/initialize-database.sql"
     mode: '0644'
 
+- name: Create external Docker network "database".
+  community.docker.docker_network:
+    name: database
+    state: present
+
 - name: Pull database Docker images if absent.
   community.docker.docker_compose_v2:
     project_src: "/srv/database"
@@ -115,7 +119,6 @@
       # note: this should be replaced by something more dynamic in production deployments, e.g. "ping SQL connect to primary, wait 1s, retry"
       ansible.builtin.wait_for:
         timeout: 10
-      delegate_to: localhost
       when: initialize_replication_file.stat.exists == false
 
     - name: Execute initialize-replication.sql in secondary nodes **once**.

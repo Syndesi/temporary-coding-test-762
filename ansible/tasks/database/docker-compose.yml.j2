@@ -15,14 +15,13 @@ services:
       - ./mariadb.cnf:/etc/mysql/mariadb.conf.d/99-mariadb-ansible.cnf
     ports:
       - "{{ ip_internal }}:3306:3306"
+    networks:
+      - database
 
   maxscale:
     container_name: maxscale
     image: mariadb/maxscale:24.02.8
     restart: unless-stopped
-    ports:
-      - "{{ ip_internal }}:8989:8989"
-      - "{{ ip_internal }}:3307:3307"
     volumes:
       - ./maxscale.cnf:/etc/maxscale.cnf
       - ./maxscale-data:/var/lib/maxscale
@@ -30,3 +29,14 @@ services:
     environment:
       MAXSCALE_LOGDIR: /var/log/maxscale
       MAXSCALE_PIDFILE: /var/run/maxscale.pid
+    expose:
+      - "3307"
+    ports:
+      - "{{ ip_internal }}:8989:8989"
+    networks:
+      - database
+
+networks:
+  database:
+    name: database
+    external: true

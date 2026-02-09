@@ -9,7 +9,7 @@ services:
     environment:
       # WordPress instance talks to MaxScale on the same node. SQL load balancing, read-write-split etc. is done through
       # MaxScale.
-      WORDPRESS_DB_HOST: {{ ip_internal }}:3307
+      WORDPRESS_DB_HOST: maxscale:3307
       WORDPRESS_DB_USER: {{ mariadb_wordpress_username }}
       WORDPRESS_DB_PASSWORD: {{ mariadb_wordpress_password }}
       WORDPRESS_DB_NAME: {{ mariadb_wordpress_database_name }}
@@ -17,3 +17,10 @@ services:
       - ./wordpress:/var/www/html
     ports:
       - "{{ ip_internal }}:80:80"
+    networks:
+      - database
+
+networks:
+  database:
+    name: database
+    external: true

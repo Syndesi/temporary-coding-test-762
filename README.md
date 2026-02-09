@@ -70,13 +70,20 @@ ansible-playbook playbook.yml -l production
 Execute the following commands on the new host:
 
 ```bash
-# root user, host
+# root user, new host
 apt update
 apt upgrade
+adduser ansible
+usermod -aG sudo ansible
 # note: the following command can likely be improved, made more secure etc
 install -m 0440 /dev/stdin /etc/sudoers.d/ansible <<'EOF'
 ansible ALL=(ALL) NOPASSWD: ALL
 EOF
+```
+
+```bash
+# local machine
+ssh-copy-id -i path/to/ssh/key.pub ansible@0.0.0.0 # replace with ip address of new host
 ```
 
 ## MaxScale
@@ -93,6 +100,12 @@ As the underlying MariaDB cluster is the same for all MaxScale instances, the di
 ### Login
 
 MaxScale's web interface can be reached on `ip:8989`, e.g. http://10.0.0.3:8989/ (web1, internal IP).
+
+The internal ip address can be reached by opening a SSH tunnel, e.g.:
+
+```bash
+ssh -L 9000:10.0.0.3:8989 ansible@95.216.155.105 -i /path/to/ssh/key
+```
 
 The default credentials are:
 

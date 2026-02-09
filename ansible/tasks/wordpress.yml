@@ -66,7 +66,6 @@
       # note: this should be replaced by something more dynamic in production deployments
       ansible.builtin.wait_for:
         timeout: 10
-      delegate_to: localhost
       when: initialize_wordpress_file.stat.exists == false
 
     - name: Dump WordPress envs to a temp file
