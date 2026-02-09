@@ -1,5 +1,7 @@
 # SENEC Coding Example
 
+https://wordpress-sk.senecops.com/
+
 ## Limitations
 
 - File synchronization of WordPress volume is yet to be decided. While some S3-compatible WordPress plugins exists, they
@@ -12,7 +14,8 @@
 Active services:
 
 - MariaDB: Open on `ip_internal:3306`.
-- MaxScale: Open on `ip_internal:3307` (SQL) and `ip_internal:8989` (web interface).
+- MaxScale: Open on `ip_internal:8989` (web interface). The SQL port 3307 is only available inside an internal Docker
+  network.
 - WordPress: Open on `ip_internal:80`.
 - Traefik (work in progress): Open on `ip_external:80` and `ip_external:443`.
 
