@@ -25,7 +25,7 @@ Recommended in [Hashicorp’s documentation](https://developer.hashicorp.com/ter
 In this task unusable, as the relevant machines are already created and can not be replaced.
 
 Another more exotic Packer use-case would be to create VM images with required dependencies (Docker, WordPress, MariaDB etc.), and to deploy those to the existing machines in the form of VMs.
-However this variant introduces additional complexities without any clear advantage over other variants.
+However, this variant introduces additional complexities without any clear advantage over other variants.
 
 ## Bash-Scripts
 

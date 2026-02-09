@@ -13,8 +13,8 @@ port=3306
 [mariadb-monitor]
 type=monitor
 module=mariadbmon
-user=maxscale
-password=maxscale_password
+user={{ maxscale_username }}
+password={{ maxscale_password }}
 monitor_interval=2000ms
 backend_connect_timeout=3000ms
 backend_connect_attempts=5
@@ -26,8 +26,8 @@ servers={{ database_nodes | map(attribute='hostname') | join(',') }}
 type=service
 router=readwritesplit
 servers={{ database_nodes | map(attribute='hostname') | join(', ') }}
-user=maxscale
-password=maxscale_password
+user={{ maxscale_username }}
+password={{ maxscale_password }}
 
 [read-write-listener]
 type=listener

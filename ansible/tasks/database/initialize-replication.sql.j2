@@ -1,4 +1,3 @@
 STOP SLAVE;
-CHANGE MASTER TO master_host="192.168.122.108", master_port=3306,
-master_user="maxscale", master_password="maxscale_password", master_use_gtid=slave_pos;
+CHANGE MASTER TO master_host="{{ mariadb_cluster_primary_ip_internal }}", master_port=3306, master_user="{{ maxscale_username }}", master_password="{{ maxscale_password }}", master_use_gtid=slave_pos;
 START SLAVE;

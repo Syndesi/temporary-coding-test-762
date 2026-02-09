@@ -60,9 +60,9 @@
     - "/srv/database/maxscale-data"
     - "/srv/database/maxscale-logs"
 
-- name: Upload Docker Compose file.
-  copy:
-    src: ./database/docker-compose.yml
+- name: Upload database Docker Compose file from template.
+  template:
+    src: ./database/docker-compose.yml.j2
     dest: "/srv/database/docker-compose.yml"
     mode: '0644'
 
@@ -74,23 +74,23 @@
 
 - name: Generate and upload MariaDB config from template.
   template:
-    src: ./database/replication.cnf.j2
-    dest: "/srv/database/replication.cnf"
+    src: ./database/mariadb.cnf.j2
+    dest: "/srv/database/mariadb.cnf"
     mode: '0644'
 
-- name: Generate and upload MariaDB init queries from template.
+- name: Generate and upload MariaDB initialize queries from template.
   template:
-    src: ./database/init-maxscale.sql.j2
-    dest: "/srv/database/init-maxscale.sql"
+    src: ./database/initialize-database.sql.j2
+    dest: "/srv/database/initialize-database.sql"
     mode: '0644'
 
-- name: Pull all images defined in docker-compose.
+- name: Pull database Docker images if absent.
   community.docker.docker_compose_v2:
     project_src: "/srv/database"
     pull: missing
     state: absent
 
-- name: Start docker-compose stack.
+- name: Start database Docker Compose stack.
   community.docker.docker_compose_v2:
     project_src: "/srv/database"
     state: present
@@ -98,7 +98,7 @@
   check_mode: no
 
 - name: Initialize replication on secondary nodes.
-  when: is_database_primary == false
+  when: mariadb_is_primary == false
   block:
 
     - name: Check for file initialize-replication.sql - if it is missing, node requires replication initialization commands to be executed.
@@ -111,7 +111,7 @@
         src: "./database/initialize-replication.sql.j2"
         dest: "/srv/database/initialize-replication.sql"
 
-    - name: Wait for primary node to come online.
+    - name: Wait for primary node to come online (10s).
       # note: this should be replaced by something more dynamic in production deployments, e.g. "ping sql connect to primary, wait 1s, retry"
       ansible.builtin.wait_for:
         timeout: 10
@@ -119,7 +119,7 @@
       when: initialize_replication_file.stat.exists == false
 
     - name: Execute initialize-replication.sql in secondary nodes **once**.
-      shell: "docker exec -i mariadb mariadb -uroot -psupersecret < /srv/database/initialize-replication.sql"
+      shell: "docker exec -i mariadb mariadb -uroot -p{{ mariadb_root_password }} < /srv/database/initialize-replication.sql"
 #      shell: "docker exec -i mariadb mariadb -uroot -p{{ root_password }} < /srv/database/initialize-replication.sql"
       when: initialize_replication_file.stat.exists == false
 

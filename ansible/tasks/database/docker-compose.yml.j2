@@ -6,14 +6,13 @@ services:
     image: mariadb:12.1.2
     restart: unless-stopped
     environment:
-      MARIADB_ROOT_PASSWORD: supersecret
-      #MARIADB_DATABASE: wordpress
-      #MARIADB_USER: wordpress
-      #MARIADB_PASSWORD: wordpress_password
+      # note: credentials should not be hardcoded in generated configurations; replace with more secure alternative for
+      #       production deployments
+      MARIADB_ROOT_PASSWORD: {{ mariadb_root_password }}
     volumes:
       - ./mariadb:/var/lib/mysql
-      - ./init-maxscale.sql:/docker-entrypoint-initdb.d/init-maxscale.sql
-      - ./replication.cnf:/etc/mysql/mariadb.conf.d/replication.cnf
+      - ./initialize-database.sql:/docker-entrypoint-initdb.d/initialize-database.sql
+      - ./mariadb.cnf:/etc/mysql/mariadb.conf.d/99-mariadb-ansible.cnf
     ports:
       - "3306:3306"
 

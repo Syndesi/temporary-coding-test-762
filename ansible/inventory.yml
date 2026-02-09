@@ -1,7 +1,7 @@
 all:
   vars:
     deploy_database: false
-    is_database_primary: false
+    mariadb_is_primary: false
     deploy_wordpress: false
     deploy_load_balancer: false
     debug: true
@@ -11,15 +11,28 @@ local:
     ansible_ssh_private_key_file: ~/.ssh/senec-ansible
     ansible_become_password: "1234" # todo: must be replaced
     ansible_become_method: "sudo"
+
+    mariadb_root_password: password
+
+    mariadb_wordpress_username: wordpress
+    mariadb_wordpress_password: wordpress_password
+    mariadb_wordpress_database_name: wordpress
+
+    mariadb_cluster_primary_ip_internal: 192.168.122.108
+
+    maxscale_username: maxscale
+    maxscale_password: maxscale_password
   hosts:
     vm1:
       ansible_host: 192.168.122.108
       ip_internal: 192.168.122.108
+
       deploy_database: true
       deploy_wordpress: true
       deploy_load_balancer: true
+
       mariadb_server_id: 1
-      is_database_primary: true
+      mariadb_is_primary: true
     vm2:
       ansible_host: 192.168.122.100
       ip_internal: 192.168.122.100

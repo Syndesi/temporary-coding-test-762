@@ -2,19 +2,11 @@
 
 ## Limitations
 
-- Replication itself does not yet work.  
-  Alternatives include:
-  - Starting nodes from a "scratch" backup, which is included in the git-repository, however embedded credentials need
-    to be handled separately / other aspects become more convoluted.
-  - Coordinating replication across nodes with SQL queries - requires orchestration outside of Ansible.
 - Load balancer is not yet implemented.  
   While comparatively easy to implement, it is not as important as replication, therefore it was one of the last tasks
   started.
 - File synchronization of WordPress volume is yet to be decided. While some S3-compatible WordPress plugins exists, they
   would shift the issue to another "magical" S3 node outside of this sketch.
-- Implementation of secure passwords - as this notebook is still under local development (virtual machines), flexibility
-  is currently more important than absolute security. Templates to replace insecure passwords already exist, and some
-  comments containing "todo" are also present.
 - Notebook has not yet been executed against the production infrastructure - as it is still being under development.
 
 ## Getting started
@@ -27,6 +19,8 @@ Requirements:
 **IMPORTANT**: The Ansible container within `docker-compose.yml` requires some sort of SSH keys being mounted as a
 readonly volume to location `/ssh-volume`. The user's default SSH key folder at `$HOME/.ssh` is explicitly NOT enabled
 by default. **Enable or replace this volume mount with care.**
+
+**IMPORTANT**: todo: describe how production secrets must be replaced
 
 ```bash
 docker compose build
@@ -79,3 +73,37 @@ install -m 0440 /dev/stdin /etc/sudoers.d/ansible <<'EOF'
 ansible ALL=(ALL) NOPASSWD: ALL
 EOF
 ```
+
+## MaxScale
+
+MaxScale is an optional companion software for MariaDB deployments, which handles advanced features like load balancing
+and automatic fail over. See [official documentation](https://mariadb.com/docs/maxscale/) for more details.
+
+**Important**: MaxScale does support [cooperative monitoring](https://mariadb.com/resources/blog/mariadb-maxscale-2-5-cooperative-monitoring/)
+(activated), which can be seen as its "cluster" feature. It does work, and has basic "cluster" capabilities, but it
+should be seen more as a group of individual MaxScale instances, which will not block themselves.  
+One of the implications is, that MaxScale's web interface is unaware of its peers.  
+As the underlying MariaDB cluster is the same for all MaxScale instances, the displayed information is also identical.
+
+### Login
+
+MaxScale's web interface can be reached on `ip:8989`, e.g. http://10.0.0.3:8989/ (web1, internal IP).
+
+The default credentials are:
+
+```txt
+username:    admin
+password:    mariadb
+```
+
+**Note**: The default credentials are not easily replaceable. For production deployments this should be resolved.
+
+![](./notes/assets/maxscale_login.png)
+
+### Dashboard
+
+![](./notes/assets/maxscale_dashboard.png)
+
+### Visualization
+
+![](./notes/assets/maxscale_visualization.png)

@@ -1,0 +1,26 @@
+CREATE USER IF NOT EXISTS '{{ maxscale_username }}'@'%' IDENTIFIED BY '{{ maxscale_password }}';
+GRANT
+  BINLOG ADMIN,
+  CONNECTION ADMIN,
+  READ_ONLY ADMIN,
+  REPLICATION MASTER ADMIN,
+  REPLICATION SLAVE ADMIN,
+  REPLICATION CLIENT,
+  REPLICATION SLAVE,
+  SLAVE MONITOR,
+  RELOAD,
+  PROCESS,
+  EVENT,
+  SHOW DATABASES,
+  SET USER
+ON *.* TO '{{ maxscale_username }}'@'%';
+GRANT
+  SELECT ON mysql.* TO '{{ maxscale_username }}'@'%';
+
+{% if mariadb_is_primary %}
+CREATE USER IF NOT EXISTS '{{ mariadb_wordpress_username }}'@'%' IDENTIFIED BY '{{ mariadb_wordpress_password }}';
+CREATE DATABASE IF NOT EXISTS {{ mariadb_wordpress_database_name }};
+GRANT ALL PRIVILEGES ON {{ mariadb_wordpress_database_name }}.* TO '{{ mariadb_wordpress_username }}'@'%';
+{% endif %}
+
+FLUSH PRIVILEGES;
